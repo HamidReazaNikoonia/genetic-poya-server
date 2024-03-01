@@ -1,21 +1,14 @@
 const Joi = require('joi');
-const { objectId } = require('../../validations/custom.validation');
+// const { password, objectId } = require('./custom.validation');
 
-const createReference = {
+const createCustomer = {
   body: Joi.object().keys({
-    description: Joi.string().min(30).max(900),
-    is_giftcard: Joi.boolean(),
-    gifcard_code: Joi.number(),
-    ref_type: Joi.string().required(),
-  }),
-};
-
-const getSpecificReference = {
-  params: Joi.object().keys({
-    reference_id: Joi.string().custom(objectId),
-  }),
-  query: Joi.object().keys({
-    customer: Joi.string().required(),
+    name: Joi.string().required(),
+    family: Joi.string().required(),
+    age: Joi.number().required(),
+    gender: Joi.string().required(),
+    city: Joi.string().required(),
+    mobile: Joi.string().min(11).max(13),
   }),
 };
 
@@ -29,7 +22,7 @@ const getSpecificReference = {
 //   }),
 // };
 
-// const getSpecificReference = {
+// const getUser = {
 //   params: Joi.object().keys({
 //     userId: Joi.string().custom(objectId),
 //   }),
@@ -55,6 +48,5 @@ const getSpecificReference = {
 // };
 
 module.exports = {
-  createReference,
-  getSpecificReference,
+  createCustomer,
 };

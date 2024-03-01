@@ -1,84 +1,191 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable no-unused-vars */
-const httpStatus = require('http-status');
-const Axios = require('axios');
-const { paymentConfig } = require('../../../config/vars');
-const APIError = require('../../utils/APIError');
+var request = require("request-promise");
+var config = require("../../../config/payment");
 
-const { api, redirectUrl } = paymentConfig;
-
-const apiEndpoints = {
-  payReq: 'https://pay.ir/pg/send',
-  redirectReq: 'https://pay.ir/pg/',
-  verifyReq: 'https://pay.ir/pg/verify',
-};
-
-
-exports.pay = async (
-  amount,
-  factorNumber = null,
-  mobile = null,
-  description = null,
-  validCardNumber = null,
-) => {
-  try {
-    const Err = (message, err = null) => new APIError({
-      message,
-      errors: err,
-      status: httpStatus.BAD_REQUEST,
-      isPublic: true,
-    });
-
-    if (typeof amount !== 'number' || amount < 1000) {
-      throw Err('amount must be a number and equal/greater than 1000');
-    }
-
-    const response = await Axios.post(apiEndpoints.payReq, {
-      amount,
-      api,
-      factorNumber,
-      redirect: redirectUrl,
-    });
-
-    console.log('response');
-    console.log(response);
-
-    if (!response || response.status !== 200 || !response.data) {
-      throw Err('API INTERNAL ERROR');
-    }
-
-    if (response.data.status !== 1) {
-      throw Err('422 API Internal Error', [response.data.errorCode || '', response.data.errorMessage || '']);
-    }
-
-    return response.data;
-  } catch (error) {
-    throw new APIError({
-      errors: error.message || '',
-      status: httpStatus.BAD_REQUEST,
-    });
+/**
+ * Constructor for ZarinPal object.
+ * @param {String} MerchantID
+ * @param {bool} sandbox
+ */
+function ZarinPal(MerchantID, sandbox) {
+  if (typeof MerchantID !== "string") {
+    throw new Error("MerchantId is invalid");
   }
-};
+  if (MerchantID.length === config.merchantIDLength) {
+    this.merchant = MerchantID;
+  } else {
+    console.error(
+      "The MerchantID must be " + config.merchantIDLength + " Characters."
+    );
+  }
+  this.sandbox = sandbox || false;
 
-exports.verifyPay = async (token = '') => {
-  try {
-    if (!token || token === '') return false;
-    const response = await Axios.post(apiEndpoints.verifyReq, {
-      api,
-      token,
-    });
-    if (!response || !response.data || response.status !== 200) {
-      throw new APIError({
-        message: 'Cant Verify Transaction',
-        status: httpStatus.BAD_REQUEST,
+  this.url = sandbox === true ? config.sandbox : config.https;
+}
+
+/**
+ * Get Authority from ZarinPal
+ * @param  {number} Amount [Amount on Tomans.]
+ * @param  {String} CallbackURL
+ * @param  {String} Description
+ * @param  {String} Email
+ * @param  {String} Mobile
+ */
+ZarinPal.prototype.PaymentRequest = function (input) {
+  var self = this;
+
+  var params = {
+    MerchantID: self.merchant,
+    Amount: input.Amount,
+    CallbackURL: input.CallbackURL,
+    Description: input.Description,
+    Email: input.Email,
+    Mobile: input.Mobile,
+    order_id: input.order_id,
+  };
+
+  var promise = new Promise(function (resolve, reject) {
+    self
+      .request(self.url, config.API.PR, "POST", params)
+      .then(function (data) {
+        resolve({
+          status: data.Status,
+          authority: data.Authority,
+          url: config.PG(self.sandbox) + data.Authority,
+        });
+      })
+      .catch(function (err) {
+        reject(err);
       });
-    }
+  });
 
-    return response.data;
-  } catch (error) {
-    throw new APIError({
-      message: 'Cant Verify Transaction',
-      status: httpStatus.BAD_REQUEST,
-    });
-  }
+  return promise;
+};
+
+/**
+ * Validate Payment from Authority.
+ * @param  {number} Amount
+ * @param  {String} Authority
+ */
+ZarinPal.prototype.PaymentVerification = function (input) {
+  var self = this;
+  var params = {
+    MerchantID: self.merchant,
+    Amount: input.amount,
+    Authority: input.authority,
+  };
+
+  var promise = new Promise(function (resolve, reject) {
+    self
+      .request(self.url, config.API.PV, "POST", params)
+      .then(function (data) {
+        resolve(data);
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+  });
+
+  return promise;
+};
+
+/**
+ * Get Unverified Transactions
+ * @param  {number} Amount
+ * @param  {String} Authority
+ */
+ZarinPal.prototype.UnverifiedTransactions = function () {
+  var self = this;
+  var params = {
+    MerchantID: self.merchant,
+  };
+
+  var promise = new Promise(function (resolve, reject) {
+    self
+      .request(self.url, config.API.UT, "POST", params)
+      .then(function (data) {
+        resolve({
+          status: data.Status,
+          authorities: data.Authorities,
+        });
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+  });
+
+  return promise;
+};
+
+/**
+ * Refresh Authority
+ * @param  {number} Amount
+ * @param  {String} Authority
+ */
+ZarinPal.prototype.RefreshAuthority = function (input) {
+  var self = this;
+  var params = {
+    MerchantID: self.merchant,
+    Authority: input.Authority,
+    ExpireIn: input.Expire,
+  };
+
+  var promise = new Promise(function (resolve, reject) {
+    self
+      .request(self.url, config.API.RA, "POST", params)
+      .then(function (data) {
+        resolve({
+          status: data.Status,
+        });
+      })
+      .catch(function (err) {
+        reject(err);
+      });
+  });
+
+  return promise;
+};
+
+/**
+ * `request` module with ZarinPal structure.
+ * @param  {String}   url
+ * @param  {String}   module
+ * @param  {String}   method
+ * @param  {String}   data
+ * @param  {Function} callback
+ */
+ZarinPal.prototype.request = function (url, module, method, data) {
+  var url = url + module;
+
+  var options = {
+    method: method,
+    url: url,
+    headers: {
+      "cache-control": "no-cache",
+      "content-type": "application/json",
+    },
+    body: data,
+    json: true,
+  };
+
+  return request(options);
+};
+
+/**
+ * Remove EXTRA ooooo!
+ * @param {number} token [API response Authority]
+ */
+ZarinPal.prototype.TokenBeautifier = function (token) {
+  return token.split(/\b0+/g);
+};
+
+/**
+ * Export version module.
+ */
+// exports.version = require("../package.json").version;
+
+/**
+ * Create ZarinPal object. Wrapper around constructor.
+ */
+exports.create = function (MerchantID, sandbox) {
+  return new ZarinPal(MerchantID, sandbox);
 };

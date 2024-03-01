@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 // const validator = require('validator');
 // const bcrypt = require('bcryptjs');
-const { toJSON, paginate } = require('./plugins');
+const { toJSON } = require('../../models/plugins');
 // const { roles } = require('../config/roles');
 
 const getMobiles = require("../../utils/mobileValidation");
@@ -43,24 +43,25 @@ const customerSchema = mongoose.Schema(
     mobile: {
       type: String,
       required: true,
+      unique: true,
       validate(value) {
         if (!getMobiles(value)[0]) {
           throw new Error('Invalid Mobile');
         }
       },
     },
-    email: {
-      type: String,
-      required: false,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      validate(value) {
-        if (!validator.isEmail(value)) {
-          throw new Error('Invalid email');
-        }
-      },
-    },
+    // email: {
+    //   type: String,
+    //   required: false,
+    //   unique: true,
+    //   trim: true,
+    //   lowercase: true,
+    //   validate(value) {
+    //     if (!validator.isEmail(value)) {
+    //       throw new Error('Invalid email');
+    //     }
+    //   },
+    // },
   },
   {
     timestamps: true,

@@ -2611,7 +2611,7 @@ __metadata:
     jsonwebtoken: ^8.5.1
     lint-staged: ^11.0.0
     moment: ^2.24.0
-    mongoose: ^5.7.7
+    mongoose: ^5.13.20
     mongoose-autopopulate: ^1.0.1
     morgan: ^1.9.1
     node-mocks-http: ^1.8.0
@@ -2624,6 +2624,7 @@ __metadata:
     supertest: ^6.0.1
     swagger-jsdoc: ^6.0.8
     swagger-ui-express: ^4.1.6
+    uuid: ^9.0.1
     validator: ^13.0.0
     winston: ^3.2.1
     xss-clean: ^0.1.1
@@ -6738,9 +6739,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:^5.7.7":
-  version: 5.13.20
-  resolution: "mongoose@npm:5.13.20"
+"mongoose@npm:^5.13.20":
+  version: 5.13.22
+  resolution: "mongoose@npm:5.13.22"
   dependencies:
     "@types/bson": 1.x || 4.0.x
     "@types/mongodb": ^3.5.27
@@ -6756,7 +6757,7 @@ __metadata:
     safe-buffer: 5.2.1
     sift: 13.5.2
     sliced: 1.0.1
-  checksum: 960326fc34d0d8b5c7cf9e97148e1a286aa13b1df96f51c2af83fa64d4e586625616c370ac69f8a64fc05bf3ec64ada0a5b79c85a03a29866ef5ae62d16cbde9
+  checksum: 26e8e359bb9d290181d858c3bd00ee8506b8187c67a9f12c59a45f9df98dec2dddfe404a1a4835b2b3053ddd78f69301a77a3b28dbbae1e5708fa623714dec31
   languageName: node
   linkType: hard
 
@@ -9781,6 +9782,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "uuid@npm:9.0.1"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 39931f6da74e307f51c0fb463dc2462807531dc80760a9bff1e35af4316131b4fc3203d16da60ae33f07fdca5b56f3f1dd662da0c99fea9aaeab2004780cc5f4
   languageName: node
   linkType: hard
 
