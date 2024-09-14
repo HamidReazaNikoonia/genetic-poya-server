@@ -20,3 +20,5 @@ opp.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/.yarn/*
+/.yarn/install-state.gz

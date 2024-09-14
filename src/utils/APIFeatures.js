@@ -28,8 +28,9 @@ class APIFeatures {
     return this;
   }
 
+  // deprecated in MongoDB with driver version 4
   count() {
-    this.total = this.model.countDocuments();
+    this.total = this.model.count();
     return this;
   }
 

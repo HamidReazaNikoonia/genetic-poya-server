@@ -2,6 +2,12 @@ const httpStatus = require('http-status');
 const { User } = require('../models');
 const ApiError = require('../utils/ApiError');
 
+
+
+const createUserByOTP = async (userBody) => {
+  return User.create(userBody);
+};
+
 /**
  * Create a user
  * @param {Object} userBody
@@ -47,6 +53,15 @@ const getUserByEmail = async (email) => {
 };
 
 /**
+ * Get user by mobile
+ * @param {string} mobile
+ * @returns {Promise<User>}
+ */
+const getUserByMobile = async (mobile) => {
+  return User.findOne({ mobile });
+};
+
+/**
  * Update user by id
  * @param {ObjectId} userId
  * @param {Object} updateBody
@@ -60,7 +75,11 @@ const updateUserById = async (userId, updateBody) => {
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  Object.assign(user, updateBody);
+
+  const {mobile, otp, role, isEmailVerified, password, ...restUpdateBody } = updateBody;
+
+
+  Object.assign(user, restUpdateBody);
   await user.save();
   return user;
 };
@@ -80,9 +99,11 @@ const deleteUserById = async (userId) => {
 };
 
 module.exports = {
+  createUserByOTP,
   createUser,
   queryUsers,
   getUserById,
+  getUserByMobile,
   getUserByEmail,
   updateUserById,
   deleteUserById,

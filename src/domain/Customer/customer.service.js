@@ -34,8 +34,7 @@ const getAllCustomers = async ({ query }) => {
   const features = new APIFeatures(Customer.find(), Customer, query).filter().sort().limitFields().paginate();
   const customer = await features.query;
 
-  const { total } = features.count();
-  return { data: { total, count: customer.length, customer } };
+  return { data: { count: customer.length, customer } };
 };
 
 //* * GET CUSTOMER :: Get `/me` **/
@@ -50,7 +49,7 @@ const getCustomer = async ({ id, mobile }) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Selected Customer Not Found!');
   }
 
-  return { data: customer };
+  return customer;
 };
 
 /**

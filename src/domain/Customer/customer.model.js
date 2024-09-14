@@ -4,8 +4,7 @@ const mongoose = require('mongoose');
 const { toJSON } = require('../../models/plugins');
 // const { roles } = require('../config/roles');
 
-const getMobiles = require("../../utils/mobileValidation");
-
+const getMobiles = require('../../utils/mobileValidation');
 
 const customerSchema = mongoose.Schema(
   {
@@ -23,22 +22,22 @@ const customerSchema = mongoose.Schema(
       type: Number,
       required: true,
       validate(val) {
-        if(val === 0 || val <= 0 || val >= 120 ) {
-          throw new Error(" Invalid age")
+        if (val === 0 || val <= 0 || val >= 120) {
+          throw new Error(' Invalid age');
         }
-      }
+      },
     },
     gender: {
       type: String,
       require: true,
-      enum: ["MEN", "WOMEN"]
+      enum: ['MEN', 'WOMEN'],
     },
     city: {
       type: String,
     },
     country: {
       type: String,
-      default: "IRAN",
+      default: 'IRAN',
     },
     mobile: {
       type: String,

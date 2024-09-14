@@ -5,6 +5,18 @@ const Token = require('../models/token.model');
 const ApiError = require('../utils/ApiError');
 const { tokenTypes } = require('../config/tokens');
 
+const getUserForOTP = async ({ mobile }) => {
+  const userDoc = await userService.getUserByMobile(mobile);
+
+  // if user not exist
+  if (!userDoc) {
+    return await userService.createUserByOTP({ mobile });
+  }
+
+  // if user exist
+  return userDoc;
+};
+
 /**
  * Login with username and password
  * @param {string} email
@@ -91,6 +103,7 @@ const verifyEmail = async (verifyEmailToken) => {
 };
 
 module.exports = {
+  getUserForOTP,
   loginUserWithEmailAndPassword,
   logout,
   refreshAuth,

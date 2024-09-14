@@ -4,17 +4,67 @@ const bcrypt = require('bcryptjs');
 const { toJSON, paginate } = require('./plugins');
 const { roles } = require('../config/roles');
 
+const getMobiles = require('../utils/mobileValidation');
+
 const userSchema = mongoose.Schema(
   {
     name: {
       type: String,
+      required: false,
+      trim: true,
+    },
+    family: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    age: {
+      type: Number,
+      required: false,
+      validate(val) {
+        if (val === 0 || val <= 0 || val >= 120) {
+          throw new Error(' Invalid age');
+        }
+      },
+    },
+    gender: {
+      type: String,
+      require: false,
+      enum: ['MEN', 'WOMEN'],
+    },
+    city: {
+      type: String,
+    },
+    country: {
+      type: String,
+      default: 'IRAN',
+    },
+    mariage_type: {
+      type: String,
+      enum: ["FAMILY", "NON_FAMILY"],
+    },
+    parent_mariage_type: {
+      type: String,
+      enum: ["FAMILY", "NON_FAMILY"],
+    },
+    mobile: {
+      type: String,
       required: true,
+      unique: true,
+      validate(value) {
+        if (!getMobiles(value)[0]) {
+          throw new Error('Invalid Mobile');
+        }
+      },
+    },
+    otp: {
+      type: String,
       trim: true,
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      required: false,
+      unique: false,
       trim: true,
       lowercase: true,
       validate(value) {
@@ -25,7 +75,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       minlength: 8,
       validate(value) {
@@ -77,8 +127,10 @@ userSchema.methods.isPasswordMatch = async function (password) {
 
 userSchema.pre('save', async function (next) {
   const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
+  if (user.password) {
+    if (user.isModified('password')) {
+      user.password = await bcrypt.hash(user.password, 8);
+    }
   }
   next();
 });

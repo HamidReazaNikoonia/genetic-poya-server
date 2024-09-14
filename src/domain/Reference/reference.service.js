@@ -1,10 +1,11 @@
 const { ObjectID } = require('mongoose');
 const httpStatus = require('http-status');
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require('uuid');
 
 // Models
 const Reference = require('./reference.model');
 const Customer = require('../Customer/customer.model');
+const Transaction = require('../Transaction/transaction.model');
 const AdminSetting = require('../Admin/admin_setting.model');
 
 // utils
@@ -155,11 +156,7 @@ const createReference = async ({ referenceBody }) => {
   // Validate Payment Request
 
   if (!payment || payment.status !== 100) {
-    throw new ApiError({
-      message: 'Payment Error',
-      paymentStatus: payment.status || null,
-      status: httpStatus.BAD_REQUEST,
-    });
+    throw new ApiError(httpStatus.BAD_REQUEST, `Payment Error with status => ${payment.status || null}`);
   }
 
   // Create New Transaction
@@ -170,7 +167,13 @@ const createReference = async ({ referenceBody }) => {
     factorNumber,
   });
 
-  return { data: savedReference };
+  const savedTransaction = await transaction.save();
+
+  if (!savedTransaction) {
+    throw new ApiError(httpStatus[500], 'Transaction Could Not Save In DB');
+  }
+
+  return { data: savedReference, transaction: savedTransaction };
 };
 
 module.exports = {

@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const { password, objectId } = require('./custom.validation');
 
+const { provincesArray } = require('../utils/provinces');
+
 const createUser = {
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -34,7 +36,13 @@ const updateUser = {
     .keys({
       email: Joi.string().email(),
       password: Joi.string().custom(password),
-      name: Joi.string(),
+      name: Joi.string().required(),
+      family: Joi.string().required(),
+      age: Joi.number().integer().min(10).max(200).required(),
+      gender: Joi.string().valid('WOMEN', 'MEN').required(),
+      city: Joi.string().valid(...provincesArray),
+      mariage_type: Joi.string().valid("FAMILY", "NON_FAMILY"),
+      parent_mariage_type: Joi.string().valid("FAMILY", "NON_FAMILY"),
     })
     .min(1),
 };

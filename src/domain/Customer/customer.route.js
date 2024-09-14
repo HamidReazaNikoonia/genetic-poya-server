@@ -13,6 +13,8 @@ router
   .get(customerController.getAllCustomers)
   .post(validate(customerValidation.createCustomer), customerController.createCustomer);
 
+router.route('/me').get(customerController.getCustomer);
+
 // router.route('/:userId').get(userController.getUser);
 
 module.exports = router;

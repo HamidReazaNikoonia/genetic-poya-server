@@ -1,5 +1,5 @@
-var request = require("request-promise");
-var config = require("../../../config/payment");
+const request = require('request-promise');
+const config = require('../../config/payment');
 
 /**
  * Constructor for ZarinPal object.
@@ -7,15 +7,14 @@ var config = require("../../../config/payment");
  * @param {bool} sandbox
  */
 function ZarinPal(MerchantID, sandbox) {
-  if (typeof MerchantID !== "string") {
-    throw new Error("MerchantId is invalid");
+  if (typeof MerchantID !== 'string') {
+    throw new Error('MerchantId is invalid');
   }
   if (MerchantID.length === config.merchantIDLength) {
     this.merchant = MerchantID;
   } else {
-    console.error(
-      "The MerchantID must be " + config.merchantIDLength + " Characters."
-    );
+    // eslint-disable-next-line no-console
+    console.error(`The MerchantID must be ${config.merchantIDLength} Characters.`);
   }
   this.sandbox = sandbox || false;
 
@@ -31,9 +30,9 @@ function ZarinPal(MerchantID, sandbox) {
  * @param  {String} Mobile
  */
 ZarinPal.prototype.PaymentRequest = function (input) {
-  var self = this;
+  const self = this;
 
-  var params = {
+  const params = {
     MerchantID: self.merchant,
     Amount: input.Amount,
     CallbackURL: input.CallbackURL,
@@ -43,9 +42,9 @@ ZarinPal.prototype.PaymentRequest = function (input) {
     order_id: input.order_id,
   };
 
-  var promise = new Promise(function (resolve, reject) {
+  const promise = new Promise(function (resolve, reject) {
     self
-      .request(self.url, config.API.PR, "POST", params)
+      .request(self.url, config.API.PR, 'POST', params)
       .then(function (data) {
         resolve({
           status: data.Status,
@@ -67,16 +66,16 @@ ZarinPal.prototype.PaymentRequest = function (input) {
  * @param  {String} Authority
  */
 ZarinPal.prototype.PaymentVerification = function (input) {
-  var self = this;
-  var params = {
+  const self = this;
+  const params = {
     MerchantID: self.merchant,
     Amount: input.amount,
     Authority: input.authority,
   };
 
-  var promise = new Promise(function (resolve, reject) {
+  const promise = new Promise(function (resolve, reject) {
     self
-      .request(self.url, config.API.PV, "POST", params)
+      .request(self.url, config.API.PV, 'POST', params)
       .then(function (data) {
         resolve(data);
       })
@@ -94,14 +93,14 @@ ZarinPal.prototype.PaymentVerification = function (input) {
  * @param  {String} Authority
  */
 ZarinPal.prototype.UnverifiedTransactions = function () {
-  var self = this;
-  var params = {
+  const self = this;
+  const params = {
     MerchantID: self.merchant,
   };
 
-  var promise = new Promise(function (resolve, reject) {
+  const promise = new Promise(function (resolve, reject) {
     self
-      .request(self.url, config.API.UT, "POST", params)
+      .request(self.url, config.API.UT, 'POST', params)
       .then(function (data) {
         resolve({
           status: data.Status,
@@ -122,16 +121,16 @@ ZarinPal.prototype.UnverifiedTransactions = function () {
  * @param  {String} Authority
  */
 ZarinPal.prototype.RefreshAuthority = function (input) {
-  var self = this;
-  var params = {
+  const self = this;
+  const params = {
     MerchantID: self.merchant,
     Authority: input.Authority,
     ExpireIn: input.Expire,
   };
 
-  var promise = new Promise(function (resolve, reject) {
+  const promise = new Promise(function (resolve, reject) {
     self
-      .request(self.url, config.API.RA, "POST", params)
+      .request(self.url, config.API.RA, 'POST', params)
       .then(function (data) {
         resolve({
           status: data.Status,
@@ -154,14 +153,14 @@ ZarinPal.prototype.RefreshAuthority = function (input) {
  * @param  {Function} callback
  */
 ZarinPal.prototype.request = function (url, module, method, data) {
-  var url = url + module;
+  const urlI = url + module;
 
-  var options = {
-    method: method,
-    url: url,
+  const options = {
+    method,
+    url: urlI,
     headers: {
-      "cache-control": "no-cache",
-      "content-type": "application/json",
+      'cache-control': 'no-cache',
+      'content-type': 'application/json',
     },
     body: data,
     json: true,

@@ -6,12 +6,12 @@ const customerService = require('./customer.service');
 const ApiError = require('../../utils/ApiError');
 
 const getAllCustomers = catchAsync(async (req, res) => {
-  const result = await customerService.getAllCustomers({ query: req.query });
-  res.status(httpStatus.OK).send(result);
+  const result = await customerService.getAllCustomers({ query: req.query || {} });
+  res.status(httpStatus.OK).json({ result });
 });
 
 const getCustomer = catchAsync(async (req, res) => {
-  if (!req.query.id || req.query.mobile) {
+  if (!req.query.id && !req.query.mobile) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Selected Customer Not Found!');
   }
   const result = await customerService.getCustomer({ id: req.query.id, mobile: req.query.mobile });
@@ -19,6 +19,13 @@ const getCustomer = catchAsync(async (req, res) => {
 });
 
 const createCustomer = catchAsync(async (req, res) => {
+
+  // check if user exist
+  const exCustomer = await customerService.getCustomer({mobile: req.body.mobile})
+
+  if (exCustomer.length > 0) {
+
+  }
   const newCustomer = await customerService.createCustomer({ customer: req.body });
   res.status(httpStatus.CREATED).send(newCustomer);
 });
