@@ -7,6 +7,9 @@ const createReference = {
     is_giftcard: Joi.boolean(),
     gifcard_code: Joi.number(),
     ref_type: Joi.string().required(),
+    customer: Joi.string().custom(objectId).required(),
+    consultId: Joi.string().custom(objectId).required(),
+    consultant_dr_id: Joi.string().custom(objectId),
   }),
 };
 

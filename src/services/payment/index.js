@@ -32,13 +32,15 @@ function ZarinPal(MerchantID, sandbox) {
 ZarinPal.prototype.PaymentRequest = function (input) {
   const self = this;
 
+  console.log({merchantkir:self.merchant })
+
   const params = {
-    MerchantID: self.merchant,
-    Amount: input.Amount,
-    CallbackURL: input.CallbackURL,
-    Description: input.Description,
-    Email: input.Email,
-    Mobile: input.Mobile,
+    merchant_id: self.merchant,
+    amount: input.Amount,
+    callback_url: input.CallbackURL,
+    description: input.Description,
+    email: input.Email,
+    mobile: input.Mobile,
     order_id: input.order_id,
   };
 
@@ -46,11 +48,24 @@ ZarinPal.prototype.PaymentRequest = function (input) {
     self
       .request(self.url, config.API.PR, 'POST', params)
       .then(function (data) {
-        resolve({
-          status: data.Status,
-          authority: data.Authority,
-          url: config.PG(self.sandbox) + data.Authority,
-        });
+        console.log({data: data})
+        if (data.data) {
+          resolve({
+            code: data.data.code,
+            authority: data.data.authority,
+            fee: data.data.fee,
+            url: config.PG(self.sandbox) + data.data.authority,
+          })
+        } else {
+          resolve({
+            data
+          })
+        }
+        // resolve({
+        //   status: data.Status,
+        //   authority: data.Authority,
+        //   url: config.PG(self.sandbox) + data.Authority,
+        // });
       })
       .catch(function (err) {
         reject(err);
@@ -68,9 +83,9 @@ ZarinPal.prototype.PaymentRequest = function (input) {
 ZarinPal.prototype.PaymentVerification = function (input) {
   const self = this;
   const params = {
-    MerchantID: self.merchant,
-    Amount: input.amount,
-    Authority: input.authority,
+    merchant_id: self.merchant,
+    amount: input.amount,
+    authority: input.authority,
   };
 
   const promise = new Promise(function (resolve, reject) {

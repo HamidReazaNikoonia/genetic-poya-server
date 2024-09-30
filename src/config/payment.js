@@ -1,11 +1,11 @@
 const config = {
-  https: 'https://www.zarinpal.com/pg/rest/WebGate/',
-  sandbox: 'https://sandbox.zarinpal.com/pg/rest/WebGate/',
+  https: 'https://payment.zarinpal.com/pg/v4/payment/',
+  sandbox: 'https://sandbox.zarinpal.com/pg/v4/payment/',
   merchantIDLength: 36,
   API: {
-    PR: 'PaymentRequest.json',
+    PR: 'request.json',
     PRX: 'PaymentRequestWithExtra.json',
-    PV: 'PaymentVerification.json',
+    PV: 'verify.json',
     PVX: 'PaymentVerificationWithExtra.json',
     RA: 'RefreshAuthority.json',
     UT: 'UnverifiedTransactions.json',
@@ -14,7 +14,7 @@ const config = {
     if (sandbox) {
       return 'https://sandbox.zarinpal.com/pg/StartPay/';
     }
-    return 'https://www.zarinpal.com/pg/StartPay/';
+    return 'https://payment.zarinpal.com/pg/StartPay/';
   },
 };
 

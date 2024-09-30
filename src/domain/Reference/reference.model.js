@@ -13,6 +13,16 @@ const referenceSchema = mongoose.Schema(
       required: true,
       ref: 'Customer', // Adds relationship between Product and User
     },
+    consult: {
+      type: objectId,
+      required: true,
+      ref: 'Consult'
+    },
+    consultant_dr_id: {
+      type: objectId,
+      required: false,
+      ref: 'User',
+    },
     description: {
       type: String,
     },
@@ -45,8 +55,8 @@ const referenceSchema = mongoose.Schema(
       default: false,
     },
     payment_reference_id: {
-      type: objectId, // Gets id of User
-      required: true,
+      type: objectId, // Gets id of Transaction
+      required: false,
       ref: 'Transaction', // Adds relationship between Product and User
     },
   },
