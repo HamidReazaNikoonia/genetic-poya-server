@@ -22,6 +22,16 @@ const getSpecificReference = {
   }),
 };
 
+
+const implementSession = {
+  params: Joi.object().keys({
+    reference_id: Joi.string().custom(objectId)
+  }),
+  body: Joi.object().keys({
+
+  })
+}
+
 // const getUsers = {
 //   query: Joi.object().keys({
 //     name: Joi.string(),
@@ -59,5 +69,6 @@ const getSpecificReference = {
 
 module.exports = {
   createReference,
+  implementSession,
   getSpecificReference,
 };

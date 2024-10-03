@@ -26,7 +26,8 @@ router
  */
 router
   .route('/:reference_id')
-  .get(validate(referenceValidation.getSpecificReference), referenceController.getSpecificReference);
+  .get(validate(referenceValidation.getSpecificReference), referenceController.getSpecificReference)
+  .post(auth(), validate(referenceValidation.implementSession), referenceController.implementSession);
 
 
 module.exports = router;

@@ -60,9 +60,40 @@ const verifyPaymentForReference = catchAsync(async (req, res) => {
   res.status(httpStatus.CREATED).send(newReference);
 });
 
+
+const implementSession = catchAsync(async (req, res) => {
+
+  const { reference_id } = req.params;
+  // const { sessionDate } = req.body;
+
+  // Get Reference From DB
+  const referenceDoc = await referenceService.getSpecificReference({reference_id, customer: req.user.id});
+
+  if (!referenceDoc) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Reference Not Exist In DB');
+  }
+
+  // check if payment status is true (in reference doc)
+  if (!referenceDoc.payment_status) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Payment Not Done');
+  }
+
+  // Get Time-Slot Id form user
+
+  // Send SMS to User
+  // Send SMS and email to Admin
+  // create reference_code code rahgiri
+
+
+  res.json({referenceDoc})
+
+
+})
+
 module.exports = {
   getAllReference,
   getSpecificReference,
   verifyPaymentForReference,
+  implementSession,
   createReference,
 };

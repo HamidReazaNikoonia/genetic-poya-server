@@ -54,16 +54,22 @@ const getAllReference = async ({ query }) => {
  */
 // eslint-disable-next-line camelcase
 const getSpecificReference = async ({ customer, reference_id }) => {
-  if (!ObjectID.isValid(reference_id)) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Selected Reference Not Found!');
+  if (!isValidObjectId(reference_id)) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Selected Reference Id Not Vaild!');
   }
   const reference = await Reference.findById(reference_id);
 
-  if (!reference || reference.customer !== customer) {
+
+  if (!reference) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Selected Reference Not Found!');
   }
 
-  return { data: { reference } };
+  if(reference.customer.toString() !== customer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'This Reference Not For This Customer');
+  }
+
+
+  return reference;
 };
 
 /**
