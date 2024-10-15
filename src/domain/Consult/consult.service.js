@@ -21,7 +21,7 @@ const createConsult = async ({ body }) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Consult Could Not Be Save');
   }
 
-  return { consult: savedConsult };
+  return savedConsult;
 };
 
 const getSpecificConsult = async ({ id }) => {

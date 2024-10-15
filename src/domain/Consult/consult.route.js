@@ -12,7 +12,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(consultController.create)
+  .post(auth(), consultController.create)
 
 
 router

@@ -27,11 +27,6 @@ const consultSchema = mongoose.Schema(
       required: true,
       ref: 'User',
     },
-    consultant_dr_id: {
-      type: objectId,
-      required: true,
-      ref: 'User',
-    },
     mariage_type: {
       type: String,
       enum: ["FAMILY", "NON_FAMILY"],
@@ -41,7 +36,7 @@ const consultSchema = mongoose.Schema(
       enum: ["FAMILY", "NON_FAMILY"],
     },
     report: {
-      ListOfIssues: [String],
+      // ListOfIssues: [String],
       ListOfCheckBox: [
         {
           _id: false,

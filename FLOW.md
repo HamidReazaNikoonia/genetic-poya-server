@@ -10,7 +10,7 @@ User Story For Consultation
  >> When User click, we will create new `Consult` DOC and then navigate to questions section with data
 
 3- user will navigate to questions sections and fill all information and apply `Consult` DOC  ( update consultant )
-4- After creating consult, in the controller we will check if user must register for consultation or not
+4- After updating consult, in the controller we will check if user must take register for consultation or not
 
     - In The Case [Yes] :
         user will be navigate to select `type of consult` and assign the `slot-time` for him/her

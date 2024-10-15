@@ -8,12 +8,12 @@ const getMobiles = require('../utils/mobileValidation');
 
 const userSchema = mongoose.Schema(
   {
-    name: {
+    first_name: {
       type: String,
       required: false,
       trim: true,
     },
-    family: {
+    last_name: {
       type: String,
       required: false,
       trim: true,
@@ -30,7 +30,7 @@ const userSchema = mongoose.Schema(
     gender: {
       type: String,
       require: false,
-      enum: ['MEN', 'WOMEN'],
+      enum: ['M', 'W'],
     },
     city: {
       type: String,

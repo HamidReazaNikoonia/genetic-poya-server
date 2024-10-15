@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-
+const config = require('../../config/config');
 // const ApiError = require('../utils/ApiError');
 const catchAsync = require('../../utils/catchAsync');
 const referenceService = require('./reference.service');
@@ -49,7 +49,9 @@ const verifyPaymentForReference = catchAsync(async (req, res) => {
   const paymentStatusFromQuery = req.query.Status;
 
   if (paymentStatusFromQuery !== 'OK') {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Payment Status Fail from Bank');
+      res.redirect(`${config.CLIENT_URL}/dashboard/payment-result?refid=0&payment_status=false`);
+      return false;
+    // throw new ApiError(httpStatus.BAD_REQUEST, 'Payment Status Fail from Bank');
   }
 
   const referenceBody = {
@@ -57,7 +59,8 @@ const verifyPaymentForReference = catchAsync(async (req, res) => {
   };
 
   const newReference = await referenceService.verifyPaymentForReference({ referenceBody });
-  res.status(httpStatus.CREATED).send(newReference);
+  res.redirect(`${config.CLIENT_URL}/dashboard/payment-result?refid=${newReference.referenceDoc._id}&payment_status=${newReference.referenceDoc.payment_status?.toString()}`);
+  // res.status(httpStatus.CREATED).send(newReference);
 });
 
 

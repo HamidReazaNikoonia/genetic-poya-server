@@ -19,6 +19,7 @@ const ZarinpalCheckout = require('../../services/payment');
 // const ApiError = require('../../utils/ApiError');
 // const catchAsync = require('../../utils/catchAsync');
 const APIFeatures = require('../../utils/APIFeatures');
+const config = require('../../config/config');
 
 // const getUsers = catchAsync(async (req, res) => {
 //     const filter = pick(req.query, ['name', 'role']);
@@ -163,11 +164,12 @@ const createReference = async ({ referenceBody }) => {
 
   // Send Payment Request to Get TOKEN
   const factorNumber = uuidv4();
-
+console.log(config.CLIENT_URL);
+console.log('hooo')
   const zarinpal = ZarinpalCheckout.create('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', true);
   const payment = await zarinpal.PaymentRequest({
     Amount: savedReference.price,
-    CallbackURL: 'http://localhost:3000/v1/reference/verify',
+    CallbackURL: `${config.SERVER_API_URL}/reference/verify`,
     Description: '---------',
     Mobile: customerFromDB.mobile,
     order_id: factorNumber,
@@ -194,7 +196,7 @@ const createReference = async ({ referenceBody }) => {
     throw new ApiError(httpStatus[500], 'Transaction Could Not Save In DB');
   }
 
-  return { data: savedReference, transaction: savedTransaction };
+  return { reference: savedReference, transaction: savedTransaction };
 };
 
 /**
