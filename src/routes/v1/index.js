@@ -9,6 +9,10 @@ const costomerRoute = require('../../domain/Customer/customer.route');
 const transactionRoute = require('../../domain/Transaction/transaction.route');
 const consultRoute = require('../../domain/Consult/consult.route');
 
+
+// Admin Routes
+const timeSlotRoute = require('../../domain/TimeSlot/time_slot.route');
+
 const router = express.Router();
 
 const defaultRoutes = [
@@ -35,6 +39,10 @@ const defaultRoutes = [
   {
     path: '/transaction',
     route: transactionRoute,
+  },
+  {
+    path: '/admin/time-slot',
+    route: timeSlotRoute,
   },
 ];
 

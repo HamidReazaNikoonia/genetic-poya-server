@@ -16,6 +16,7 @@ router
   .get(referenceController.getAllReference)
   .post(auth(), validate(referenceValidation.createReference), referenceController.createReference);
 
+router.get('/get/:user_id',auth(), referenceController.getAllUserReference);
 
 router
 .route('/verify')
@@ -26,7 +27,7 @@ router
  */
 router
   .route('/:reference_id')
-  .get(validate(referenceValidation.getSpecificReference), referenceController.getSpecificReference)
+  .get(auth(), validate(referenceValidation.getSpecificReference), referenceController.getSpecificReference)
   .post(auth(), validate(referenceValidation.implementSession), referenceController.implementSession);
 
 

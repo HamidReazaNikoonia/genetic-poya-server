@@ -8,6 +8,8 @@ const Customer = require('../Customer/customer.model');
 const Transaction = require('../Transaction/transaction.model');
 const AdminSetting = require('../Admin/admin_setting.model');
 const UserModel = require('../../models/user.model');
+const TimeSlotModel = require('../TimeSlot/time_slot.model');
+
 const UserService = require('../../services/user.service');
 
 // utils
@@ -60,15 +62,13 @@ const getSpecificReference = async ({ customer, reference_id }) => {
   }
   const reference = await Reference.findById(reference_id);
 
-
   if (!reference) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Selected Reference Not Found!');
   }
 
-  if(reference.customer.toString() !== customer) {
+  if (reference.customer.toString() !== customer) {
     throw new ApiError(httpStatus.NOT_FOUND, 'This Reference Not For This Customer');
   }
-
 
   return reference;
 };
@@ -164,8 +164,8 @@ const createReference = async ({ referenceBody }) => {
 
   // Send Payment Request to Get TOKEN
   const factorNumber = uuidv4();
-console.log(config.CLIENT_URL);
-console.log('hooo')
+  console.log(config.CLIENT_URL);
+  console.log('hooo');
   const zarinpal = ZarinpalCheckout.create('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', true);
   const payment = await zarinpal.PaymentRequest({
     Amount: savedReference.price,
@@ -218,9 +218,8 @@ const verifyPaymentForReference = async ({ referenceBody }) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Transaction not Found in DB');
   }
 
-
   // check for reference
-  const referenceDoc = await Reference.findOne({_id: transactionDoc.reference_id});
+  const referenceDoc = await Reference.findOne({ _id: transactionDoc.reference_id });
 
   if (!referenceDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Reference not Found in DB');
@@ -252,31 +251,76 @@ const verifyPaymentForReference = async ({ referenceBody }) => {
         throw new ApiError(httpStatus.BAD_REQUEST, 'مبلغ پرداخت شده با مقدار مبلغ ارسالی در متد وریفای متفاوت است.');
         break;
       default:
-        throw new ApiError(httpStatus.BAD_REQUEST, `Payment Transaction Faild From ZarinPal with code => ${payment.data.code} `);
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          `Payment Transaction Faild From ZarinPal with code => ${payment.data.code} `
+        );
     }
   }
 
   if (payment.data.code === 101) {
-    throw new ApiError(httpStatus[201], "تراکنش وریفای شده است.")
+    throw new ApiError(httpStatus[201], 'تراکنش وریفای شده است.');
   }
 
   // Transaction Pay Successfully
   if (payment.data.code === 100 && payment.data.message === 'Paid') {
-
     // Update Transaction
-      transactionDoc.status = true;
-      transactionDoc.payment_reference_id = payment.data.ref_id;
-      await transactionDoc.save();
+    transactionDoc.status = true;
+    transactionDoc.payment_reference_id = payment.data.ref_id;
+    await transactionDoc.save();
 
     // Update Reference
 
     referenceDoc.payment_status = true;
-    referenceDoc.status = "WAITING";
+    referenceDoc.status = 'WAITING';
     await referenceDoc.save();
-
   }
 
-  return {payment, transactionDoc, referenceDoc};
+  return { payment, transactionDoc, referenceDoc };
+};
+
+/**
+ ******************************
+ * ** Update Reference Service For Add Session Date and Reference Type **
+ ******************************
+ * @param { consult_reason, ref_type, time_slot_id }
+ * @returns saved ref in database
+ */
+const updateAndImplementTimeForReference = async ({ consult_reason, ref_type, time_slot_id, reference_id }) => {
+  // implement time-slot and booked for this reference
+  // get time-slot by id and check if is is available
+  const timeSlotDoc = await TimeSlotModel.findById(time_slot_id);
+
+  // check is exist and available
+
+  if (!timeSlotDoc) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Selected Time Slot Not Exist');
+  }
+
+  if (timeSlotDoc.isBooked) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Selected Time Slot Is Booked');
+  }
+
+  // update time-slot
+  timeSlotDoc.isBooked = true;
+  timeSlotDoc.referenceId = reference_id;
+  await timeSlotDoc.save();
+
+  // create follow up code for reference
+  const generatedFollowUpCode = `${reference_id.toString().substring(0, 4)}-${Math.random().toString(36).replace(/[^a-z]+/g, '').substring(0, 4)}`;
+
+  const reference = await Reference.findOneAndUpdate(
+    { _id: reference_id },
+    {
+      consult_reason,
+      ref_type,
+      time_slot: timeSlotDoc._id,
+      follow_up_code: generatedFollowUpCode
+    },
+    { new: true }
+  );
+
+  return reference;
 };
 
 module.exports = {
@@ -284,4 +328,5 @@ module.exports = {
   getSpecificReference,
   verifyPaymentForReference,
   createReference,
+  updateAndImplementTimeForReference,
 };

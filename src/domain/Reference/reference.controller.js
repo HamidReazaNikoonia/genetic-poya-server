@@ -10,9 +10,20 @@ const getAllReference = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send(result);
 });
 
+const getAllUserReference = catchAsync(async (req, res) => {
+  if (req.user.id !== req.params.user_id) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'User Not Allow This resource (User id Req params not the same with Req user id)'
+    );
+  }
+  const result = await referenceService.getAllReference({ query: { customer: req.user.id } });
+  res.status(httpStatus.OK).send(result);
+});
+
 const getSpecificReference = catchAsync(async (req, res) => {
   const result = await referenceService.getSpecificReference({
-    customer: req.query.customer,
+    customer: req.user.id,
     reference_id: req.params.reference_id,
   });
   res.status(httpStatus.OK).send(result);
@@ -49,8 +60,8 @@ const verifyPaymentForReference = catchAsync(async (req, res) => {
   const paymentStatusFromQuery = req.query.Status;
 
   if (paymentStatusFromQuery !== 'OK') {
-      res.redirect(`${config.CLIENT_URL}/dashboard/payment-result?refid=0&payment_status=false`);
-      return false;
+    res.redirect(`${config.CLIENT_URL}/dashboard/payment-result?refid=0&payment_status=false`);
+    return false;
     // throw new ApiError(httpStatus.BAD_REQUEST, 'Payment Status Fail from Bank');
   }
 
@@ -59,18 +70,20 @@ const verifyPaymentForReference = catchAsync(async (req, res) => {
   };
 
   const newReference = await referenceService.verifyPaymentForReference({ referenceBody });
-  res.redirect(`${config.CLIENT_URL}/dashboard/payment-result?refid=${newReference.referenceDoc._id}&payment_status=${newReference.referenceDoc.payment_status?.toString()}`);
+  res.redirect(
+    `${config.CLIENT_URL}/dashboard/payment-result?refid=${
+      newReference.referenceDoc._id
+    }&payment_status=${newReference.referenceDoc.payment_status.toString()}`
+  );
   // res.status(httpStatus.CREATED).send(newReference);
 });
 
-
 const implementSession = catchAsync(async (req, res) => {
-
   const { reference_id } = req.params;
-  // const { sessionDate } = req.body;
+  const { time_slot_id, ref_type, consult_reason } = req.body;
 
   // Get Reference From DB
-  const referenceDoc = await referenceService.getSpecificReference({reference_id, customer: req.user.id});
+  const referenceDoc = await referenceService.getSpecificReference({ reference_id, customer: req.user.id });
 
   if (!referenceDoc) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Reference Not Exist In DB');
@@ -81,20 +94,30 @@ const implementSession = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Payment Not Done');
   }
 
+  // check reference Status
+  if (referenceDoc.status === 'RESOLVE') {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Reference Resolved');
+  }
+
+  const updatedReference = await referenceService.updateAndImplementTimeForReference({
+    consult_reason,
+    ref_type,
+    time_slot_id,
+    reference_id,
+  });
+
   // Get Time-Slot Id form user
 
   // Send SMS to User
   // Send SMS and email to Admin
   // create reference_code code rahgiri
 
-
-  res.json({referenceDoc})
-
-
-})
+  res.status(httpStatus.OK).send(updatedReference);
+});
 
 module.exports = {
   getAllReference,
+  getAllUserReference,
   getSpecificReference,
   verifyPaymentForReference,
   implementSession,

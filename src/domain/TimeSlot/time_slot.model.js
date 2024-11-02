@@ -22,7 +22,7 @@ const timeSlotSchema = new mongoose.Schema(
     },
     referenceId: {
       type: objectId,
-      required: true,
+      required: false,
     }
   },
   {

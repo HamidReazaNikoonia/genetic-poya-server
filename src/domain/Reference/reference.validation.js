@@ -1,6 +1,9 @@
 const Joi = require('joi');
 const { objectId } = require('../../validations/custom.validation');
 
+const referenceTypeEnum = ['HOZORI', 'ONLINE', 'BY_TELEPHONE'];
+const consultReasonFromUser = ["EZDEVAJ", "PISH_AZ_BARDARI"];
+
 const createReference = {
   body: Joi.object().keys({
     description: Joi.string().min(30).max(900),
@@ -17,20 +20,18 @@ const getSpecificReference = {
   params: Joi.object().keys({
     reference_id: Joi.string().custom(objectId),
   }),
-  query: Joi.object().keys({
-    customer: Joi.string().required(),
-  }),
 };
-
 
 const implementSession = {
   params: Joi.object().keys({
-    reference_id: Joi.string().custom(objectId)
+    reference_id: Joi.string().custom(objectId),
   }),
   body: Joi.object().keys({
-
-  })
-}
+    ref_type: Joi.string().valid(...referenceTypeEnum).required(),
+    consult_reason: Joi.string().valid(...consultReasonFromUser).required(),
+    time_slot_id: Joi.string().custom(objectId),
+  }),
+};
 
 // const getUsers = {
 //   query: Joi.object().keys({

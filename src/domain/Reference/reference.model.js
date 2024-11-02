@@ -5,6 +5,7 @@ const objectId = mongoose.Types.ObjectId;
 // Enum Constant
 const referenceStatusEnum = ['CREATED', 'WAITING', 'RESOLVE', 'REJECTED'];
 const referenceTypeEnum = ['HOZORI', 'ONLINE', 'BY_TELEPHONE'];
+const consultReasonFromUser = ["EZDEVAJ", "PISH_AZ_BARDARI"];
 
 const referenceSchema = mongoose.Schema(
   {
@@ -16,7 +17,8 @@ const referenceSchema = mongoose.Schema(
     consult: {
       type: objectId,
       required: true,
-      ref: 'Consult'
+      ref: 'Consult',
+      autopopulate: true
     },
     consultant_dr_id: {
       type: objectId,
@@ -59,6 +61,19 @@ const referenceSchema = mongoose.Schema(
       required: false,
       ref: 'Transaction', // Adds relationship between Product and User
     },
+    consult_reason: {
+      type: String,
+      enum: consultReasonFromUser
+    },
+    time_slot: {
+      type: objectId,
+      required: false,
+      ref: 'TimeSlot',
+      autopopulate: true
+    },
+    follow_up_code: {
+      type: String
+    }
   },
   {
     timestamps: true,
